@@ -28,10 +28,10 @@ class TranslationManager {
     var isTranslating: Bool = false
     
     // API Key Placeholder - User needs to replace this
-    private let apiKey = "AIzaSyDHwLVFFWiRhXgHIwPb6e5RgxCcoontGDI"
+    private let apiKey = "AIzaSyCRALkEmjhl8tGD2JMbtNtWsHOjcqm1QaA"
     
     // Preferred model name; update as needed. If unavailable, we fall back.
-    private var modelName: String = "gemini-3-flash"
+    private var modelName: String = "gemini-2.5-flash-lite"
     private let apiVersionPath: String = "v1" // use v1 for broad availability
     
     // Cache the resolved latest model to avoid listing every time
@@ -99,7 +99,7 @@ class TranslationManager {
                 do {
                     print("DEBUG: Requesting translation from Gemini via REST...")
                     // Resolve latest available model name (cached)
-                    self.modelName = await resolveLatestModelName(preferredFamily: "flash")
+                    self.modelName = await resolveLatestModelName(preferredFamily: "flash-lite")
                     // Build REST request to Gemini API
                     var base = "https://generativelanguage.googleapis.com/\(apiVersionPath)/models/\(modelName):generateContent"
                     guard let url = URL(string: base + "?key=\(self.apiKey)") else {
