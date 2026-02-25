@@ -96,4 +96,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE) © 2025 Emre
+[MIT](LICENSE) © 2026 Emre
