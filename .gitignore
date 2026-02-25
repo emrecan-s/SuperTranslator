@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Build artifacts — never commit compiled binaries
+*.app/
+*.ipa
+*.xcarchive
+DerivedData/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.moved-aside
+
+# Swift Package Manager
+.build
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xccheckout
+*.xcscmblueprint
+
+# API keys and secrets — NEVER commit these
+*.env
+.env.*
+secrets.plist
+APIKey.swift
+
+# Logs
+*.log
