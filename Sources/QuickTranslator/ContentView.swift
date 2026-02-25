@@ -6,6 +6,14 @@ struct ContentView: View {
     @State private var showingSettings = false
 
     var body: some View {
+        if showingSettings {
+            SettingsView(manager: manager, showingSettings: $showingSettings)
+        } else {
+            mainView
+        }
+    }
+
+    private var mainView: some View {
         VStack(spacing: 15) {
             header
 
@@ -25,14 +33,10 @@ struct ContentView: View {
             }
 
             Spacer()
-
             controls
         }
         .padding()
         .frame(width: 400, height: 500)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView(manager: manager)
-        }
     }
 
     private var header: some View {
@@ -60,20 +64,14 @@ struct ContentView: View {
             Image(systemName: "key.fill")
                 .font(.largeTitle)
                 .foregroundStyle(.orange)
-
             Text("Gemini API Key Required")
                 .font(.headline)
-
             Text("Add your free Gemini API key to get started.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-
-            Button("Open Settings") {
-                showingSettings = true
-            }
-            .buttonStyle(.borderedProminent)
-
+            Button("Open Settings") { showingSettings = true }
+                .buttonStyle(.borderedProminent)
             Link("Get a free API key →", destination: URL(string: "https://aistudio.google.com/app/apikey")!)
                 .font(.caption)
         }
@@ -95,7 +93,6 @@ struct ContentView: View {
                             .padding(.vertical, 4)
                     }
                 }
-
                 if !manager.translatedText.isEmpty {
                     GroupBox(label: Text("Translated (English US)").font(.caption).foregroundColor(.secondary)) {
                         Text(manager.translatedText)
@@ -123,26 +120,20 @@ struct ContentView: View {
 
             Spacer()
 
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.red)
+            Button("Quit") { NSApplication.shared.terminate(nil) }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
         }
     }
 
     private func accessibilityWarning(_ hotkeyManager: GlobalHotkeyManager) -> some View {
         VStack(spacing: 10) {
             HStack {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
-                Text("Accessibility Permission Needed")
-                    .font(.subheadline)
-                    .fontWeight(.bold)
+                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                Text("Accessibility Permission Needed").font(.subheadline).fontWeight(.bold)
             }
             Text("The global hotkey requires Accessibility permissions to work.")
-                .font(.caption)
-                .multilineTextAlignment(.center)
+                .font(.caption).multilineTextAlignment(.center)
             HStack {
                 Button("Open Settings") {
                     let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
@@ -150,7 +141,7 @@ struct ContentView: View {
                 }
                 .buttonStyle(.bordered)
                 Button("Retry") { hotkeyManager.retrySetup() }
-                .buttonStyle(.borderedProminent)
+                    .buttonStyle(.borderedProminent)
             }
         }
         .padding()
@@ -160,18 +151,35 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Settings
+// MARK: - Settings (inline, no sheet — sheets don't dismiss reliably in MenuBarExtra)
 
 struct SettingsView: View {
     @Bindable var manager: TranslationManager
-    @Environment(\.dismiss) private var dismiss
+    @Binding var showingSettings: Bool
     @State private var apiKeyInput: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Settings")
-                .font(.title2)
-                .fontWeight(.bold)
+            // Header with back button
+            HStack {
+                Button {
+                    showingSettings = false
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.blue)
+
+                Spacer()
+
+                Text("Settings")
+                    .font(.headline)
+
+                Spacer()
+            }
 
             Divider()
 
@@ -181,37 +189,36 @@ struct SettingsView: View {
 
                 SecureField("Paste your API key here", text: $apiKeyInput)
                     .textFieldStyle(.roundedBorder)
+                    .onSubmit { saveAndDismiss() }
 
-                HStack {
-                    Link("Get a free key at aistudio.google.com →",
-                         destination: URL(string: "https://aistudio.google.com/app/apikey")!)
-                        .font(.caption)
-                        .foregroundStyle(.blue)
-                    Spacer()
-                }
+                Link("Get a free key at aistudio.google.com →",
+                     destination: URL(string: "https://aistudio.google.com/app/apikey")!)
+                    .font(.caption)
+                    .foregroundStyle(.blue)
             }
 
             Spacer()
 
             HStack {
-                Button("Cancel") { dismiss() }
+                Button("Cancel") { showingSettings = false }
                     .buttonStyle(.plain)
                 Spacer()
-                Button("Save") {
-                    manager.apiKey = apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
-                    dismiss()
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Button("Save") { saveAndDismiss() }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
-        .padding(24)
+        .padding(20)
         .frame(width: 400, height: 220)
         .onAppear {
-            // Pre-fill with existing key (masked)
-            if manager.hasApiKey {
-                apiKeyInput = manager.apiKey
-            }
+            apiKeyInput = manager.apiKey
         }
+    }
+
+    private func saveAndDismiss() {
+        let trimmed = apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        manager.apiKey = trimmed
+        showingSettings = false
     }
 }

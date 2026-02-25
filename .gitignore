@@ -37,3 +37,23 @@ APIKey.swift
 
 # Logs
 *.log
+
+# AI agent / assistant config and instruction files
+.gemini/
+.cursor/
+.windsurf/
+.copilot/
+.agents/
+.agent/
+_agents/
+_agent/
+.aider*
+.continue/
+.codeium/
+INSTRUCTIONS.md
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+*~
